@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ui_movies/blocs/detail-page-cubit/detail_page_cubit.dart';
 
 class BuyButton extends StatefulWidget {
-  const BuyButton({super.key});
+  final bool enabled;
+
+  const BuyButton({super.key, required this.enabled});
 
   @override
   State<BuyButton> createState() => _BuyButtonState();
@@ -17,19 +19,33 @@ class _BuyButtonState extends State<BuyButton> with TickerProviderStateMixin {
   late final AnimationController _sizeController = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 500));
 
+  var _isAnimationFinished = true;
+
   void _forwardAnimation() {
     if (_sizeController.status == AnimationStatus.dismissed) {
-      _diameterController
-          .forward()
-          .then((_) => _borderController.forward().then((_) {
-                _diameterController.reset();
-                _borderController.reset();
-              }).then((_) => _sizeController.forward().then((_) {})));
+      _diameterController.forward().then(
+            (_) => _borderController.forward().then((_) {
+              _diameterController.reset();
+              _borderController.reset();
+            }).then(
+              (_) => _sizeController
+                  .forward()
+                  .then((_) => _isAnimationFinished = false),
+            ),
+          );
     }
   }
 
   void _reverseAnimation() {
-    _sizeController.reverse();
+    setState(() => _isAnimationFinished = false);
+
+    _sizeController.reverse().then(
+          (_) => Future.delayed(const Duration(milliseconds: 1500)).then(
+            (_) => setState(
+              () => _isAnimationFinished = true,
+            ),
+          ),
+        );
   }
 
   @override
@@ -53,13 +69,14 @@ class _BuyButtonState extends State<BuyButton> with TickerProviderStateMixin {
         }
       },
       child: Positioned(
-        // TODO
         bottom: 10.0,
         left: .0,
         right: .0,
         child: SafeArea(
           child: GestureDetector(
-            onTap: (() => context.read<DetailPageCubit>().forward()),
+            onTap: widget.enabled && _isAnimationFinished
+                ? (() => context.read<DetailPageCubit>().forward())
+                : null,
             child: Stack(
               children: [
                 Center(
@@ -75,7 +92,9 @@ class _BuyButtonState extends State<BuyButton> with TickerProviderStateMixin {
                       height: 55.0,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade800,
+                        color: widget.enabled
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade500,
                         borderRadius:
                             const BorderRadius.all(Radius.circular(6.0)),
                       ),
