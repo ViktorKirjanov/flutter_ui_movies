@@ -29,7 +29,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   double _currentPage = 0.0;
   int _currentPageIndex = 0;
-  bool showCenter = true;
+  bool _showCenter = true;
+  bool _isButtonEnabled = true;
 
   void _listener() {
     _currentPage = _pageController.page!;
@@ -37,9 +38,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _currentPageIndex = _currentPage.floor();
 
     if (_currentPage == 0.0 || _currentPage % 1 == 0) {
-      showCenter = true;
+      _showCenter = true;
     } else {
-      showCenter = false;
+      _showCenter = false;
     }
 
     setState(() {});
@@ -65,11 +66,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   bool _onNotification(ScrollNotification scrollState) {
+    var width = MediaQuery.of(context).size.width;
+    var extentInside = scrollState.metrics.extentInside;
+
+    _isButtonEnabled = (_currentPage % 1 == 0 && width == extentInside);
+
     if (scrollState is UserScrollNotification ||
         scrollState is ScrollEndNotification) {
-      setState(() => showCenter = true);
+      setState(() => _showCenter = true);
     } else {
-      setState(() => showCenter = false);
+      setState(() => _showCenter = false);
     }
     return false;
   }
@@ -99,7 +105,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           _buildPageView(),
           _buildCenterMovieCard(),
           const CloseDetailsButton(),
-          const BuyButton()
+          BuyButton(enabled: _isButtonEnabled),
         ],
       ),
     );
@@ -190,7 +196,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           final opacity =
                               1 - (index - _currentPage).abs().clamp(0.0, 0.5);
 
-                          if (showCenter && index == currentPageIndex) {
+                          if (_showCenter && index == currentPageIndex) {
                             return const SizedBox();
                           } else {
                             return Padding(
@@ -218,7 +224,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _buildCenterMovieCard() {
-    return showCenter
+    return _showCenter
         ? AnimatedMovieCard(
             movie: movies[_currentPageIndex],
           )
