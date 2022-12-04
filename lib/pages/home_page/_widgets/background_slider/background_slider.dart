@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'background_clipper.dart';
+import 'package:flutter_ui_movies/pages/home_page/_widgets/background_slider/background_clipper.dart';
 
 class BackgroundSlider extends StatelessWidget {
-  final int index;
-  final String image;
-  final double pageValue;
-
   const BackgroundSlider({
     Key? key,
     required this.index,
@@ -14,9 +10,13 @@ class BackgroundSlider extends StatelessWidget {
     required this.pageValue,
   }) : super(key: key);
 
+  final int index;
+  final String image;
+  final double pageValue;
+
   @override
   Widget build(BuildContext context) {
-    var progress = getProgress();
+    final progress = getProgress();
     return ClipPath(
       clipper: BackgroundClipper(progress: progress),
       child: Image.asset(

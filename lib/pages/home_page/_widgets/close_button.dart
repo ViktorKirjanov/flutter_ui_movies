@@ -13,10 +13,12 @@ class CloseDetailsButton extends StatefulWidget {
 class _CloseDetailsButtonState extends State<CloseDetailsButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animationController = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 250));
+    vsync: this,
+    duration: const Duration(milliseconds: 250),
+  );
 
   void _forwardAnimation() {
-    Future.delayed(const Duration(milliseconds: 1750))
+    Future<void>.delayed(const Duration(milliseconds: 1750))
         .then((_) => _animationController.forward());
   }
 
@@ -31,44 +33,40 @@ class _CloseDetailsButtonState extends State<CloseDetailsButton>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: 10.0,
-      top: .0,
-      child: SafeArea(
-        child: BlocBuilder<DetailPageCubit, DetailPageState>(
-          builder: (_, state) {
-            if (state == DetailPageState.completed) {
-              _forwardAnimation();
-            } else if (state == DetailPageState.dismissed) {
-              _reverseAnimation();
-            }
-            return AnimatedBuilder(
-              animation: _animationController,
-              builder: (_, child) {
-                return Transform.translate(
+  Widget build(BuildContext context) => Positioned(
+        left: 10.0,
+        top: .0,
+        child: SafeArea(
+          child: BlocBuilder<DetailPageCubit, DetailPageState>(
+            builder: (_, state) {
+              if (state == DetailPageState.completed) {
+                _forwardAnimation();
+              } else if (state == DetailPageState.dismissed) {
+                _reverseAnimation();
+              }
+              return AnimatedBuilder(
+                animation: _animationController,
+                builder: (_, child) => Transform.translate(
                   offset: Offset(
                     .0,
                     -100.0 * (1.0 - _animationController.value),
                   ),
                   child: child,
-                );
-              },
-              child: CupertinoButton(
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.white,
                 ),
-                onPressed: () {
-                  if (state == DetailPageState.completed) {
-                    context.read<DetailPageCubit>().reverse();
-                  }
-                },
-              ),
-            );
-          },
+                child: CupertinoButton(
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    if (state == DetailPageState.completed) {
+                      context.read<DetailPageCubit>().reverse();
+                    }
+                  },
+                ),
+              );
+            },
+          ),
         ),
-      ),
-    );
-  }
+      );
 }

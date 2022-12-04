@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ui_movies/blocs/detail-page-cubit/detail_page_cubit.dart';
 
 class BuyButton extends StatefulWidget {
-  final bool enabled;
-
   const BuyButton({super.key, required this.enabled});
+
+  final bool enabled;
 
   @override
   State<BuyButton> createState() => _BuyButtonState();
@@ -13,11 +13,17 @@ class BuyButton extends StatefulWidget {
 
 class _BuyButtonState extends State<BuyButton> with TickerProviderStateMixin {
   late final AnimationController _diameterController = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 250));
+    vsync: this,
+    duration: const Duration(milliseconds: 250),
+  );
   late final AnimationController _borderController = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 250));
+    vsync: this,
+    duration: const Duration(milliseconds: 250),
+  );
   late final AnimationController _sizeController = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 500));
+    vsync: this,
+    duration: const Duration(milliseconds: 500),
+  );
 
   var _isAnimationFinished = true;
 
@@ -40,7 +46,7 @@ class _BuyButtonState extends State<BuyButton> with TickerProviderStateMixin {
     setState(() => _isAnimationFinished = false);
 
     _sizeController.reverse().then(
-          (_) => Future.delayed(const Duration(milliseconds: 1500)).then(
+          (_) => Future<void>.delayed(const Duration(milliseconds: 1500)).then(
             (_) => setState(
               () => _isAnimationFinished = true,
             ),
@@ -82,12 +88,10 @@ class _BuyButtonState extends State<BuyButton> with TickerProviderStateMixin {
                 Center(
                   child: AnimatedBuilder(
                     animation: _sizeController,
-                    builder: (_, child) {
-                      return SizedBox(
-                        width: width + _sizeController.value * widthDifference,
-                        child: child,
-                      );
-                    },
+                    builder: (_, child) => SizedBox(
+                      width: width + _sizeController.value * widthDifference,
+                      child: child,
+                    ),
                     child: Container(
                       height: 55.0,
                       width: double.infinity,
@@ -121,19 +125,17 @@ class _BuyButtonState extends State<BuyButton> with TickerProviderStateMixin {
                           _diameterController,
                           _borderController,
                         ]),
-                        builder: (_, child) {
-                          return Container(
-                            height: _diameterController.value * 55.0,
-                            width: _diameterController.value * 55.0,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                width: 15.0 - _borderController.value * 15.0,
-                                color: Colors.white,
-                              ),
+                        builder: (_, child) => Container(
+                          height: _diameterController.value * 55.0,
+                          width: _diameterController.value * 55.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              width: 15.0 - _borderController.value * 15.0,
+                              color: Colors.white,
                             ),
-                          );
-                        },
+                          ),
+                        ),
                       ),
                     ),
                   ),
