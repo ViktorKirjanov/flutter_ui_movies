@@ -22,10 +22,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final movies = Movies().data;
 
   late final AnimationController _pageAnimationController = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 250));
+    vsync: this,
+    duration: const Duration(milliseconds: 250),
+  );
   late final AnimationController _backCardAnimationController =
       AnimationController(
-          vsync: this, duration: const Duration(milliseconds: 250));
+    vsync: this,
+    duration: const Duration(milliseconds: 250),
+  );
 
   double _currentPage = 0.0;
   int _currentPageIndex = 0;
@@ -49,27 +53,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _pageController.addListener(() => _listener());
+    _pageController.addListener(_listener);
   }
 
   void _forwardAnimation() {
-    Future.delayed(const Duration(milliseconds: 100)).then((_) =>
-        _pageAnimationController
-            .forward()
-            .then((_) => _backCardAnimationController.forward()));
+    Future<void>.delayed(const Duration(milliseconds: 100)).then(
+      (_) => _pageAnimationController
+          .forward()
+          .then((_) => _backCardAnimationController.forward()),
+    );
   }
 
   void _reverseAnimation() {
-    _backCardAnimationController.reverse().then((_) =>
-        Future.delayed(const Duration(milliseconds: 100))
-            .then((_) => _pageAnimationController.reverse()));
+    _backCardAnimationController.reverse().then(
+          (_) => Future<void>.delayed(const Duration(milliseconds: 100))
+              .then((_) => _pageAnimationController.reverse()),
+        );
   }
 
   bool _onNotification(ScrollNotification scrollState) {
-    var width = MediaQuery.of(context).size.width;
-    var extentInside = scrollState.metrics.extentInside;
+    final width = MediaQuery.of(context).size.width;
+    final extentInside = scrollState.metrics.extentInside;
 
-    _isButtonEnabled = (_currentPage % 1 == 0 && width == extentInside);
+    _isButtonEnabled = _currentPage % 1 == 0 && width == extentInside;
 
     if (scrollState is UserScrollNotification ||
         scrollState is ScrollEndNotification) {
@@ -84,38 +90,37 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void dispose() {
     _pageAnimationController.dispose();
     _backCardAnimationController.dispose();
-    _pageController.removeListener(() => _listener());
-    _pageController.dispose();
+    _pageController
+      ..removeListener(_listener)
+      ..dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade500,
-      body: Stack(
-        children: [
-          _buildBackground(),
-          _buildBacgroundFade(),
-          const BackgroundGradient(),
-          BackPosters(
-            movies: movies,
-            currentPageIndex: _currentPageIndex,
-          ),
-          _buildPageView(),
-          _buildCenterMovieCard(),
-          const CloseDetailsButton(),
-          BuyButton(enabled: _isButtonEnabled),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: Colors.grey.shade500,
+        body: Stack(
+          children: [
+            _buildBackground(),
+            _buildBacgroundFade(),
+            const BackgroundGradient(),
+            BackPosters(
+              movies: movies,
+              currentPageIndex: _currentPageIndex,
+            ),
+            _buildPageView(),
+            _buildCenterMovieCard(),
+            const CloseDetailsButton(),
+            BuyButton(enabled: _isButtonEnabled),
+          ],
+        ),
+      );
 
   Widget _buildBackground() {
     var i = 1;
     return Stack(
       children: movies.map((_) {
-        var child = BackgroundSlider(
+        final child = BackgroundSlider(
           pageValue: _currentPage,
           image: movies[movies.length - i].image,
           index: movies.length - i,
@@ -126,21 +131,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildBacgroundFade() {
-    return AnimatedBuilder(
-      animation: _pageAnimationController,
-      builder: (context, child) {
-        return Opacity(
+  Widget _buildBacgroundFade() => AnimatedBuilder(
+        animation: _pageAnimationController,
+        builder: (context, child) => Opacity(
           opacity: _pageAnimationController.value,
           child: child,
-        );
-      },
-      child: Container(color: Colors.black),
-    );
-  }
+        ),
+        child: Container(color: Colors.black),
+      );
 
   Widget _buildPageView() {
-    var size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
     return Column(
       children: [
         BlocConsumer<DetailPageCubit, DetailPageState>(
@@ -151,83 +152,72 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               _reverseAnimation();
             }
           },
-          builder: (_, state) {
-            return AnimatedBuilder(
-              animation: Listenable.merge([
-                _pageAnimationController,
-                _backCardAnimationController,
-              ]),
-              builder: (_, child) {
-                return Padding(
-                  padding: EdgeInsets.only(top: size.height * .25),
-                  child: SizedBox(
-                    height: size.height * .75,
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification scrollState) =>
-                          _onNotification(scrollState),
-                      child: PageView.builder(
-                        physics: state == DetailPageState.dismissed
-                            ? null
-                            : const NeverScrollableScrollPhysics(),
-                        clipBehavior: Clip.none,
-                        controller: _pageController,
-                        itemCount: movies.length,
-                        itemBuilder: ((context, index) {
-                          final currentPageIndex = _currentPage.floor();
-                          final cardWidth = size.width * .75;
-                          final imageWidth =
-                              cardWidth - 30.0 - 30.0 - 8.0 - 8.0;
-                          final imageOwerflowWidth =
-                              size.width * .25 / 2 - 8.0 - 30.0;
-                          final imageOffsetX = imageWidth - imageOwerflowWidth;
+          builder: (_, state) => AnimatedBuilder(
+            animation: Listenable.merge([
+              _pageAnimationController,
+              _backCardAnimationController,
+            ]),
+            builder: (_, child) => Padding(
+              padding: EdgeInsets.only(top: size.height * .25),
+              child: SizedBox(
+                height: size.height * .75,
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: _onNotification,
+                  child: PageView.builder(
+                    physics: state == DetailPageState.dismissed
+                        ? null
+                        : const NeverScrollableScrollPhysics(),
+                    clipBehavior: Clip.none,
+                    controller: _pageController,
+                    itemCount: movies.length,
+                    itemBuilder: (_, index) {
+                      final currentPageIndex = _currentPage.floor();
+                      final cardWidth = size.width * .75;
+                      final imageWidth = cardWidth - 30.0 - 30.0 - 8.0 - 8.0;
+                      final imageOwerflowWidth =
+                          size.width * .25 / 2 - 8.0 - 30.0;
+                      final imageOffsetX = imageWidth - imageOwerflowWidth;
 
-                          var offsetX = .0;
-                          if (index == currentPageIndex - 1) {
-                            offsetX = .0 +
-                                imageOffsetX *
-                                    _backCardAnimationController.value;
-                          } else if (index == currentPageIndex + 1) {
-                            offsetX = .0 -
-                                imageOffsetX *
-                                    _backCardAnimationController.value;
-                          }
+                      var offsetX = .0;
+                      if (index == currentPageIndex - 1) {
+                        offsetX = .0 +
+                            imageOffsetX * _backCardAnimationController.value;
+                      } else if (index == currentPageIndex + 1) {
+                        offsetX = .0 -
+                            imageOffsetX * _backCardAnimationController.value;
+                      }
 
-                          final offsetY = (index - _currentPage).abs() * 40.0;
-                          final opacity =
-                              1 - (index - _currentPage).abs().clamp(0.0, 0.5);
+                      final offsetY = (index - _currentPage).abs() * 40.0;
+                      final opacity =
+                          1 - (index - _currentPage).abs().clamp(0.0, 0.5);
 
-                          if (_showCenter && index == currentPageIndex) {
-                            return const SizedBox();
-                          } else {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: MovieCard(
-                                movie: movies[index],
-                                offset: Offset(offsetX, offsetY),
-                                opacity: opacity -
-                                    .5 * _pageAnimationController.value,
-                              ),
-                            );
-                          }
-                        }),
-                      ),
-                    ),
+                      if (_showCenter && index == currentPageIndex) {
+                        return const SizedBox();
+                      } else {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: MovieCard(
+                            movie: movies[index],
+                            offset: Offset(offsetX, offsetY),
+                            opacity:
+                                opacity - .5 * _pageAnimationController.value,
+                          ),
+                        );
+                      }
+                    },
                   ),
-                );
-              },
-            );
-          },
+                ),
+              ),
+            ),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildCenterMovieCard() {
-    return _showCenter
-        ? AnimatedMovieCard(
-            movie: movies[_currentPageIndex],
-          )
-        : const SizedBox();
-  }
+  Widget _buildCenterMovieCard() => _showCenter
+      ? AnimatedMovieCard(
+          movie: movies[_currentPageIndex],
+        )
+      : const SizedBox();
 }

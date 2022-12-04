@@ -3,14 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ui_movies/blocs/detail-page-cubit/detail_page_cubit.dart';
 
 class StarAnimation extends StatefulWidget {
-  final int initDelayMilliseconds;
-  final Widget child;
-
   const StarAnimation({
     super.key,
     required this.initDelayMilliseconds,
     required this.child,
   });
+
+  final int initDelayMilliseconds;
+  final Widget child;
 
   @override
   State<StarAnimation> createState() => _StarAnimationState();
@@ -25,8 +25,9 @@ class _StarAnimationState extends State<StarAnimation>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-        duration: const Duration(milliseconds: 1000), vsync: this)
-      ..addListener(() {
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    )..addListener(() {
         setState(() {});
       });
     offsetAnimation = Tween(begin: 0.0, end: 1.0).animate(
@@ -38,13 +39,15 @@ class _StarAnimationState extends State<StarAnimation>
   }
 
   void _forward() {
-    Future.delayed(Duration(milliseconds: 250 + widget.initDelayMilliseconds))
-        .then((_) => _animationController.forward());
+    Future<void>.delayed(
+      Duration(milliseconds: 250 + widget.initDelayMilliseconds),
+    ).then((_) => _animationController.forward());
   }
 
   void _reverse() {
-    Future.delayed(Duration(milliseconds: 250 + widget.initDelayMilliseconds))
-        .then((_) => _animationController.reverse());
+    Future<void>.delayed(
+      Duration(milliseconds: 250 + widget.initDelayMilliseconds),
+    ).then((_) => _animationController.reverse());
   }
 
   @override
@@ -55,7 +58,7 @@ class _StarAnimationState extends State<StarAnimation>
 
   @override
   Widget build(BuildContext context) {
-    final yOffset = (MediaQuery.of(context).size.height * .4);
+    final yOffset = MediaQuery.of(context).size.height * .4;
 
     return BlocListener<DetailPageCubit, DetailPageState>(
       listener: (_, state) {

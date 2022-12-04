@@ -5,11 +5,6 @@ import 'package:flutter_ui_movies/models/movie_model.dart';
 import 'package:flutter_ui_movies/pages/home_page/_widgets/movie_card/movie_card.dart';
 
 class BackgroundListView extends StatefulWidget {
-  final PageController pageController;
-  final AnimationController pageAnimationController;
-  final List<Movie> movies;
-  final double currentPage;
-
   const BackgroundListView({
     super.key,
     required this.pageController,
@@ -18,6 +13,11 @@ class BackgroundListView extends StatefulWidget {
     required this.currentPage,
   });
 
+  final PageController pageController;
+  final AnimationController pageAnimationController;
+  final List<Movie> movies;
+  final double currentPage;
+
   @override
   State<BackgroundListView> createState() => _BackgroundListViewState();
 }
@@ -25,7 +25,7 @@ class BackgroundListView extends StatefulWidget {
 class _BackgroundListViewState extends State<BackgroundListView>
     with SingleTickerProviderStateMixin {
   void _forwardAnimation() {
-    Future.delayed(const Duration(milliseconds: 500))
+    Future<void>.delayed(const Duration(milliseconds: 500))
         .then((_) => widget.pageAnimationController.forward());
   }
 
@@ -35,7 +35,7 @@ class _BackgroundListViewState extends State<BackgroundListView>
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
     return Column(
       children: [
         BlocConsumer<DetailPageCubit, DetailPageState>(
@@ -46,48 +46,44 @@ class _BackgroundListViewState extends State<BackgroundListView>
               _reverseAnimation();
             }
           },
-          builder: (_, state) {
-            return AnimatedBuilder(
-              animation: widget.pageAnimationController,
-              builder: (_, child) {
-                return Padding(
-                  padding: EdgeInsets.only(top: size.height * .25),
-                  child: SizedBox(
-                    height: size.height * .75,
-                    child: PageView.builder(
-                      physics: state == DetailPageState.dismissed
-                          ? null
-                          : const NeverScrollableScrollPhysics(),
-                      clipBehavior: Clip.none,
-                      controller: widget.pageController,
-                      itemCount: widget.movies.length,
-                      itemBuilder: ((_, index) {
-                        final offsetY = (index - widget.currentPage).abs() *
-                            40 *
-                            (1 - widget.pageAnimationController.value);
-                        final opacity = 1 -
-                            (index - widget.currentPage).abs().clamp(0.0, 0.5);
+          builder: (_, state) => AnimatedBuilder(
+            animation: widget.pageAnimationController,
+            builder: (_, child) => Padding(
+              padding: EdgeInsets.only(top: size.height * .25),
+              child: SizedBox(
+                height: size.height * .75,
+                child: PageView.builder(
+                  physics: state == DetailPageState.dismissed
+                      ? null
+                      : const NeverScrollableScrollPhysics(),
+                  clipBehavior: Clip.none,
+                  controller: widget.pageController,
+                  itemCount: widget.movies.length,
+                  itemBuilder: (_, index) {
+                    final offsetY = (index - widget.currentPage).abs() *
+                        40 *
+                        (1 - widget.pageAnimationController.value);
+                    final opacity =
+                        1 - (index - widget.currentPage).abs().clamp(0.0, 0.5);
 
-                        var isOnPageNotTurning = widget.currentPage % 1 == 0;
-                        var currentPageIndex = widget.currentPage.floor();
+                    final isOnPageNotTurning = widget.currentPage % 1 == 0;
+                    final currentPageIndex = widget.currentPage.floor();
 
-                        if (isOnPageNotTurning && index == currentPageIndex) {
-                          return const SizedBox();
-                        } else {
-                          return MovieCard(
-                            movie: widget.movies[index],
-                            offset: Offset(.0, offsetY),
-                            opacity: opacity -
-                                .5 * widget.pageAnimationController.value,
-                          );
-                        }
-                      }),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
+                    if (isOnPageNotTurning && index == currentPageIndex) {
+                      return const SizedBox();
+                    } else {
+                      return MovieCard(
+                        movie: widget.movies[index],
+                        offset: Offset(.0, offsetY),
+                        opacity:
+                            opacity - .5 * widget.pageAnimationController.value,
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
         ),
       ],
     );
