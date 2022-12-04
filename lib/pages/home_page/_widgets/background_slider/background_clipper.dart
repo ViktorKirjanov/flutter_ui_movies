@@ -7,16 +7,16 @@ class BackgroundClipper extends CustomClipper<Path> {
 
   @override
   Path getClip(Size size) {
-    final path = Path().addRect(
-      Rect.fromLTRB(
-        size.width - (size.width * progress),
-        0,
-        size.width,
-        size.height,
-      ),
-    );
-
-    return path as Path;
+    final Path path = Path()
+      ..addRect(
+        Rect.fromLTRB(
+          size.width - (size.width * progress),
+          0,
+          size.width,
+          size.height,
+        ),
+      );
+    return path;
   }
 
   @override
